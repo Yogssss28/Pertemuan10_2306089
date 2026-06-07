@@ -1,47 +1,57 @@
 import 'package:flutter/material.dart';
-import 'package:pertemuan10_2306041/pages/home_page.dart';
-import 'package:pertemuan10_2306041/pages/login_page.dart';
+import 'package:pertemuan10_2306089/pages/home_page.dart';
+import 'package:pertemuan10_2306089/pages/login_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const AppRoot());
 }
 
-class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+
+class AppRoot extends StatefulWidget {
+  const AppRoot({super.key});
 
   @override
-  State<MyApp> createState() => _MyAppState();
+  State<AppRoot> createState() => _AppRootState();
 }
 
-class _MyAppState extends State<MyApp> {
-  bool isLogin = false;
-  bool isLoading = true;
+class _AppRootState extends State<AppRoot> {
+  bool _isLoggedIn = false;
+  bool _isChecking = true;
 
   @override
   void initState() {
     super.initState();
-    checkLogin();
+    _checkSession();
   }
 
-  Future<void> checkLogin() async {
+  // Cek status login dari SharedPreferences
+  Future<void> _checkSession() async {
     final prefs = await SharedPreferences.getInstance();
-    isLogin = prefs.getBool('isLogin') ?? false;
+    _isLoggedIn = prefs.getBool('isLogin') ?? false;
     setState(() {
-      isLoading = false;
+      _isChecking = false;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    if (isLoading) {
+    if (_isChecking) {
       return const MaterialApp(
-        home: Scaffold(body: Center(child: CircularProgressIndicator())),
+        debugShowCheckedModeBanner: false,
+        home: Scaffold(
+          body: Center(child: CircularProgressIndicator()),
+        ),
       );
     }
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: isLogin ? const HomePage() : const LoginPage(),
+      title: 'StudyTrack',
+      theme: ThemeData(
+        colorSchemeSeed: const Color(0xFF00897B),
+        useMaterial3: true,
+      ),
+      home: _isLoggedIn ? const DashboardPage() : const SignInPage(),
     );
   }
 }
